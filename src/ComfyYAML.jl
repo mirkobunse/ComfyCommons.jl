@@ -23,9 +23,19 @@
 module ComfyYAML
 
 
-# re-export load_file from YAML.jl
-import YAML.load_file
+import YAML
 export load_file
+
+
+# add kwargs to load_file from YAML
+function load_file(filename::AbstractString, more_constructors::YAML._constructor=nothing;
+                   kwargs...)
+    config = YAML.load_file(filename, more_constructors)
+    for (k, v) in kwargs
+        config[string(k)] = v
+    end
+    return config
+end
 
 
 expand(config::Dict{Any,Any}, property::Any) =
