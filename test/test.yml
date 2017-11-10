@@ -1,0 +1,10 @@
+# two arrays to be expanded during tests
+array: [1, 2, 3] # reading this as array is supported by YAML
+complexarray:    # supported as well, more complex
+  - a: 1
+    b: 2
+  - a: 11
+    b: 12
+  - a: 21
+    b: 22
+

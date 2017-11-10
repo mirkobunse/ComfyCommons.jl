@@ -22,6 +22,17 @@
 
 module ComfyYAML
 
-# package code goes here
+
+# re-export load_file from YAML.jl
+import YAML.load_file
+export load_file
+
+
+expand(config::Dict{Any,Any}, property::Any) =
+    [ Dict(config..., property => v) for v in config[property] ]
+
+
+# TODO write YAML files (may contribute to https://github.com/dcjones/YAML.jl/issues/29)
+
 
 end # module
