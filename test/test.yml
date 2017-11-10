@@ -1,4 +1,5 @@
 # two arrays to be expanded during tests
+simple: "blaw"
 array: [1, 2, 3] # reading this as array is supported by YAML
 complexarray:    # supported as well, more complex
   - a: 1

@@ -1,5 +1,4 @@
-using ComfyYAML
-using Base.Test
+using Base.Test, ComfyYAML
 
 # expand the properties 'array' and 'complexarray' in the test configuration
 c = ComfyYAML.load_file("test.yml") # load the test file
@@ -28,3 +27,11 @@ c = ComfyYAML.load_file("test.yml", a=3, b="5", c=[1, 2, 3]) # load with additio
 @test c["a"] == 3
 @test c["b"] == "5"
 @test c["c"] == [1, 2, 3]
+
+# test writing to files by parsing the output back again
+c = ComfyYAML.load_file("test.yml")
+filename = tempname() * ".yml"
+ComfyYAML.write_file(filename, c) # write to temporary file
+parsed = ComfyYAML.load_file(filename)
+rm(filename) # cleanup
+@test parsed == c
