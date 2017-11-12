@@ -45,3 +45,11 @@ for cei in ce
     @test typeof(cei["subexpand"]["y"]) == eltype(c["subexpand"]["y"])
 end
 
+c = ComfyYAML.load_file("test.yml")
+ce = ComfyYAML.expand(c, ["subexpandlist", "y"])
+@test typeof(ce) <: Array
+@test length(ce) == length(c["subexpandlist"][1]["y"]) + 1 # +1 because 'nothing' in item 2
+for cei in ce
+    @test typeof(cei["subexpandlist"][1]["y"]) <: Union{eltype(c["subexpandlist"][1]["y"]), Void}
+end
+

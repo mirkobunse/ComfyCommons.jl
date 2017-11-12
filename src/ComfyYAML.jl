@@ -24,7 +24,7 @@ module ComfyYAML
 
 
 import YAML
-export load_file, write_file
+export load_file, write_file, deepcopy
 
 
 # add kwargs to load_file from YAML
@@ -44,20 +44,39 @@ end
 TODO
 """
 function expand(config::Dict{Any,Any}, property::AbstractArray)
-    [ error("Not yet implemented") for v in config[property...] ]
+    [ begin
+        c = deepcopy(config)
+        _setindex!(c, v, property...)
+        c
+    end for v in vcat(_getindex(config, property...)...) ]
 end
 
 expand(config::Dict{Any,Any}, property::Any) =
-    [ Dict(config..., property => v) for v in config[property] ]
+    [ Dict(config..., property => v) for v in _getindex(config, property) ]
 
-@inline @inbounds Base.getindex(val::Dict, keys::Any...) = val[keys[1]][keys[2:end]...]
-@inline @inbounds Base.getindex(arr::AbstractArray, keys::Any...) =
-    [ try val[keys...] end for val in arr ]
 
-@inline @inbounds Base.setindex!(val::Dict, value::Any, keys::Any...) = 
-    val[keys[1]][keys[2:end]...] = value
-@inline @inbounds Base.setindex!(arr::AbstractArray, value::Any, keys::Any...) =
-    [ try val[keys...] = value end for val in arr ]
+@inline @inbounds _getindex(val::Dict, keys::Any...) =
+    if length(keys) > 1
+        _getindex(val[keys[1]], keys[2:end]...)
+    else val[keys[1]] end
+@inline @inbounds _getindex(arr::AbstractArray, keys::Any...) =
+    [ try _getindex(val, keys...) end for val in arr ]
+
+@inline @inbounds _setindex!(val::Dict, value::Any, keys::Any...) = 
+    if length(keys) > 1
+        _setindex!(val[keys[1]], value, keys[2:end]...)
+    elseif haskey(val, keys[1])
+        val[keys[1]] = value
+    end
+@inline @inbounds _setindex!(arr::AbstractArray, value::Any, keys::Any...) =
+    [ try _setindex!(val, value, keys...) end for val in arr ]
+
+
+function deepcopy(config::Dict{Any,Any})
+    buf = IOBuffer()
+    write(buf, config)
+    YAML.load(String(take!(buf)))
+end
 
 # write YAML files (may contribute to https://github.com/dcjones/YAML.jl/issues/29)
 function write_file(filename::AbstractString, config::Dict{Any,Any})
@@ -76,9 +95,9 @@ function write(io::IO, config::Dict{Any,Any}, level::Int=0, ignorelevel::Bool=fa
     end
 end
 
-# pairs are printed in 'key: value' form, where value may spend several lines
+# pairs are printed in 'key: value' form, where value may span several lines
 function write(io::IO, config::Pair{Any,Any}, level::Int=0, ignorelevel::Bool=false)
-    print(io, indent(config[1] * ":", level, ignorelevel)) # print key
+    print(io, indent(string(config[1]) * ":", level, ignorelevel)) # print key
     if (typeof(config[2]) <: Dict || typeof(config[2]) <: AbstractArray)
         print(io, "\n")
     else
