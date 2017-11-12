@@ -1,5 +1,6 @@
+simple: "blaw"   # just some property
+
 # two arrays to be expanded during tests
-simple: "blaw"
 array: [1, 2, 3] # reading this as array is supported by YAML
 complexarray:    # supported as well, more complex
   - a: 1
@@ -9,3 +10,12 @@ complexarray:    # supported as well, more complex
   - a: 21
     b: 22
 
+# test sub-property expansion
+subexpand:
+  x: "x"
+  y: [ "y1", "y2", "y3" ]
+subexpandlist:
+  - x: "x"
+    y: [ "y1", "y2", "y3" ]
+  - x: "X"
+    P: [ "P1", "P2", "P3" ]

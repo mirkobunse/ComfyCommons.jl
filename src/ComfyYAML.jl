@@ -38,9 +38,26 @@ function load_file(filename::AbstractString, more_constructors::YAML._constructo
 end
 
 
+"""
+    expand(config, property)
+
+TODO
+"""
+function expand(config::Dict{Any,Any}, property::AbstractArray)
+    [ error("Not yet implemented") for v in config[property...] ]
+end
+
 expand(config::Dict{Any,Any}, property::Any) =
     [ Dict(config..., property => v) for v in config[property] ]
 
+@inline @inbounds Base.getindex(val::Dict, keys::Any...) = val[keys[1]][keys[2:end]...]
+@inline @inbounds Base.getindex(arr::AbstractArray, keys::Any...) =
+    [ try val[keys...] end for val in arr ]
+
+@inline @inbounds Base.setindex!(val::Dict, value::Any, keys::Any...) = 
+    val[keys[1]][keys[2:end]...] = value
+@inline @inbounds Base.setindex!(arr::AbstractArray, value::Any, keys::Any...) =
+    [ try val[keys...] = value end for val in arr ]
 
 # write YAML files (may contribute to https://github.com/dcjones/YAML.jl/issues/29)
 function write_file(filename::AbstractString, config::Dict{Any,Any})

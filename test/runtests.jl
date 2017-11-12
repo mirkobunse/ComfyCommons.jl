@@ -35,3 +35,13 @@ ComfyYAML.write_file(filename, c) # write to temporary file
 parsed = ComfyYAML.load_file(filename)
 rm(filename) # cleanup
 @test parsed == c
+
+# test sub-expansion
+c = ComfyYAML.load_file("test.yml")
+ce = ComfyYAML.expand(c, ["subexpand", "y"])
+@test typeof(ce) <: Array
+@test length(ce) == length(c["subexpand"]["y"])
+for cei in ce
+    @test typeof(cei["subexpand"]["y"]) == eltype(c["subexpand"]["y"])
+end
+
