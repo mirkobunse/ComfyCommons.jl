@@ -70,33 +70,37 @@ function write_file(filename::AbstractString, config::Dict{Any,Any})
 end
 
 # generic writing
-function write(io::IO, config::Dict{Any,Any}, level::Int=0, inlist::Bool=false)
-    inlist && print(io, " ")
+function write(io::IO, config::Dict{Any,Any}, level::Int=0, ignorelevel::Bool=false)
     for (i, tup) in enumerate(config)
-        write(io, tup, (!inlist || i > 1) ? level : 0)
+        write(io, tup, level, ignorelevel ? i == 1 : false)
     end
 end
 
 # pairs are printed in 'key: value' form, where value may spend several lines
-function write(io::IO, config::Pair{Any,Any}, level::Int=0, inlist::Bool=false)
-    print(io, indent(config[1] * ":", level)) # print key
-    write(io, config[2], level + 1)           # print value, first item not indented
+function write(io::IO, config::Pair{Any,Any}, level::Int=0, ignorelevel::Bool=false)
+    print(io, indent(config[1] * ":", level, ignorelevel)) # print key
+    if (typeof(config[2]) <: Dict || typeof(config[2]) <: AbstractArray)
+        print(io, "\n")
+    else
+        print(io, " ")
+    end
+    write(io, config[2], level + 1)             # print value, first item not indented
 end
 
 # elements in arrays are written in their own lines, preceded by '-'
-function write(io::IO, config::AbstractArray, level::Int=0, inlist::Bool=false)
-    print(io, "\n")
+function write(io::IO, config::AbstractArray, level::Int=0, ignorelevel::Bool=false)
     for (i, elem) in enumerate(config)
-        print(io, indent("-", level))    # print sequence element character '-'
-        write(io, elem, level + 1, true) # print value, first item not indented
+        print(io, indent("- ", level))   # print sequence element character '-'
+        write(io, elem, level + 1, true) # print value, ignore first indent
     end
 end
 
-# others value
-write(io::IO, config::Any, level::Int=0, inlist::Bool=false) =
-    print(io, " " * string(config) * "\n") # no indent desired
+# other values
+write(io::IO, config::Any, level::Int=0, ignorelevel::Bool=false) =
+    print(io, string(config) * "\n") # no indent ever required
 
-indent(str::AbstractString, level::Int) = repeat("  ", level) * str
+indent(str::AbstractString, level::Int, ignorelevel::Bool=false) =
+    repeat("  ", ignorelevel ? 0 : level) * str
 
 
 end # module
