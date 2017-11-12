@@ -24,10 +24,18 @@ module ComfyYAML
 
 
 import YAML
-export load_file, write_file, deepcopy
+export load_file, write_file, deepcopy, expand
 
 
-# add kwargs to load_file from YAML
+"""
+    load_file(filename, more_constrictors=nothing; kwargs...)
+
+See `YAML.load_file`, which is extended here by keyword arguments.
+
+You can specify additional configurations with the keyword arguments. For example, if you
+run `load_file("bla.yml", more = "stuff")`, you read the `bla.yml` file and set the `more`
+property to `stuff`. 
+"""
 function load_file(filename::AbstractString, more_constructors::YAML._constructor=nothing;
                    kwargs...)
     config = YAML.load_file(filename, more_constructors)
@@ -38,47 +46,14 @@ function load_file(filename::AbstractString, more_constructors::YAML._constructo
 end
 
 
+#
+# YAML file writing (may contribute to https://github.com/dcjones/YAML.jl/issues/29)
+# 
 """
-    expand(config, property)
+    write_file(filename, config)
 
-TODO
+Write the given configuration to a YAML file.
 """
-function expand(config::Dict{Any,Any}, property::AbstractArray)
-    [ begin
-        c = deepcopy(config)
-        _setindex!(c, v, property...)
-        c
-    end for v in vcat(_getindex(config, property...)...) ]
-end
-
-expand(config::Dict{Any,Any}, property::Any) =
-    [ Dict(config..., property => v) for v in _getindex(config, property) ]
-
-
-@inline @inbounds _getindex(val::Dict, keys::Any...) =
-    if length(keys) > 1
-        _getindex(val[keys[1]], keys[2:end]...)
-    else val[keys[1]] end
-@inline @inbounds _getindex(arr::AbstractArray, keys::Any...) =
-    [ try _getindex(val, keys...) end for val in arr ]
-
-@inline @inbounds _setindex!(val::Dict, value::Any, keys::Any...) = 
-    if length(keys) > 1
-        _setindex!(val[keys[1]], value, keys[2:end]...)
-    elseif haskey(val, keys[1])
-        val[keys[1]] = value
-    end
-@inline @inbounds _setindex!(arr::AbstractArray, value::Any, keys::Any...) =
-    [ try _setindex!(val, value, keys...) end for val in arr ]
-
-
-function deepcopy(config::Dict{Any,Any})
-    buf = IOBuffer()
-    write(buf, config)
-    YAML.load(String(take!(buf)))
-end
-
-# write YAML files (may contribute to https://github.com/dcjones/YAML.jl/issues/29)
 function write_file(filename::AbstractString, config::Dict{Any,Any})
     if (!endswith(filename, ".yml"))
         warn("The provided filename $filename does not end on '.yml'. Still writing...")
@@ -88,14 +63,12 @@ function write_file(filename::AbstractString, config::Dict{Any,Any})
     close(file)
 end
 
-# generic writing
 function write(io::IO, config::Dict{Any,Any}, level::Int=0, ignorelevel::Bool=false)
     for (i, tup) in enumerate(config)
         write(io, tup, level, ignorelevel ? i == 1 : false)
     end
 end
 
-# pairs are printed in 'key: value' form, where value may span several lines
 function write(io::IO, config::Pair{Any,Any}, level::Int=0, ignorelevel::Bool=false)
     print(io, indent(string(config[1]) * ":", level, ignorelevel)) # print key
     if (typeof(config[2]) <: Dict || typeof(config[2]) <: AbstractArray)
@@ -103,10 +76,9 @@ function write(io::IO, config::Pair{Any,Any}, level::Int=0, ignorelevel::Bool=fa
     else
         print(io, " ")
     end
-    write(io, config[2], level + 1)             # print value, first item not indented
+    write(io, config[2], level + 1) # print value
 end
 
-# elements in arrays are written in their own lines, preceded by '-'
 function write(io::IO, config::AbstractArray, level::Int=0, ignorelevel::Bool=false)
     for (i, elem) in enumerate(config)
         print(io, indent("- ", level))   # print sequence element character '-'
@@ -114,12 +86,68 @@ function write(io::IO, config::AbstractArray, level::Int=0, ignorelevel::Bool=fa
     end
 end
 
-# other values
 write(io::IO, config::Any, level::Int=0, ignorelevel::Bool=false) =
-    print(io, string(config) * "\n") # no indent ever required
+    print(io, string(config) * "\n") # no indent required
 
 indent(str::AbstractString, level::Int, ignorelevel::Bool=false) =
     repeat("  ", ignorelevel ? 0 : level) * str
+# 
+# end of file writing
+# 
+
+
+"""
+    deepcopy(config)
+
+Create a deep copy of the given `Dict` object.
+"""
+function deepcopy(config::Dict{Any,Any})
+    buf = IOBuffer()
+    write(buf, config)            # serialize
+    YAML.load(String(take!(buf))) # deserialize
+end
+
+
+"""
+    expand(config, property)
+
+Expand the values of the given configuration with the content of the given property.
+
+Expansion means that if `property` is an array with multiple elements, each element is
+isolated and stored in the property in a dedicated copy of the configuration.
+The `property` argument can be an array specifying a root-to-leaf path in the configuration
+tree.
+"""
+expand(config::Dict{Any,Any}, property::Any) =
+    [ Dict(config..., property => v) for v in _getindex(config, property) ]
+
+# deeper in the configuration tree, it gets slightly more complex
+function expand(config::Dict{Any,Any}, property::AbstractArray)
+    [ begin
+        c = deepcopy(config)
+        _setindex!(c, v, property...)
+        c
+    end for v in vcat(_getindex(config, property...)...) ]
+end
+
+# functions that complement the usual indexing with varargs
+# (does not override Base functions because that would screw up some Base functionality)
+@inline @inbounds _getindex(val::Dict, keys::Any...) =
+    if length(keys) > 1
+        _getindex(val[keys[1]], keys[2:end]...)
+    else
+        val[keys[1]]
+    end
+@inline @inbounds _getindex(arr::AbstractArray, keys::Any...) =
+    [ try _getindex(val, keys...) end for val in arr ]
+@inline @inbounds _setindex!(val::Dict, value::Any, keys::Any...) = 
+    if length(keys) > 1
+        _setindex!(val[keys[1]], value, keys[2:end]...)
+    elseif haskey(val, keys[1])
+        val[keys[1]] = value
+    end
+@inline @inbounds _setindex!(arr::AbstractArray, value::Any, keys::Any...) =
+    [ try _setindex!(val, value, keys...) end for val in arr ]
 
 
 end # module
