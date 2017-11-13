@@ -54,11 +54,12 @@ end
 
 Write the given configuration to a YAML file.
 """
-function write_file(filename::AbstractString, config::Dict{Any,Any})
+function write_file(filename::AbstractString, config::Dict{Any,Any}, prefix::AbstractString="")
     if (!endswith(filename, ".yml"))
         warn("The provided filename $filename does not end on '.yml'. Still writing...")
     end
     file = open(filename, "w")
+    print(file, prefix)
     write(file, config)
     close(file)
 end

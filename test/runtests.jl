@@ -36,6 +36,27 @@ parsed = ComfyYAML.load_file(filename)
 rm(filename) # cleanup
 @test parsed == c
 
+# test writing to files with prefix
+c = ComfyYAML.load_file("test.yml")
+filename = tempname() * ".yml"
+prfx = """
+# this is a multiline
+# comment prefix
+"""
+ComfyYAML.write_file(filename, c, prfx)
+for (i, l) in enumerate(eachline(filename))
+    if i == 1
+        @test chomp(l) == "# this is a multiline"
+    elseif i == 2
+        @test chomp(l) == "# comment prefix"
+    else
+        break
+    end
+end
+parsed = ComfyYAML.load_file(filename)
+rm(filename) # cleanup
+@test parsed == c
+
 # test sub-expansion
 c = ComfyYAML.load_file("test.yml")
 ce = ComfyYAML.expand(c, ["subexpand", "y"])
