@@ -108,6 +108,47 @@ function deepcopy(config::Dict{Any,Any})
 end
 
 
+
+"""
+    interpolate(conf, property; kwargs...)
+
+Interpolate the value of the given property with the referenced configuration value or with
+the referenced keyword argument value.
+
+For example, if conf specifies `inter: \$val` and `val: blaw`, you can obtain `blaw`
+by calling `interpolate(conf, "inter")`. If only `inter: \$kw` is given (and `kw` is not
+configured), you can use keyword arguments to achieve the same effect:
+`interpolate(conf, "inter", kw="blaw")`.
+The `property` argument can be an array specifying a root-to-leaf path in the configuration
+tree.
+"""
+function interpolate(conf::Dict{Any,Any}, property::AbstractArray; kwargs...)
+    replace(_getindex(conf, property...), r"\$\w+", s ->
+        if haskey(conf, s[2:end])
+            conf[s[2:end]]
+        else
+            kwarg = find(k -> string(k[1]) == s[2:end], kwargs)
+            if length(kwarg) > 0
+                kwargs[kwarg[1]][2]
+            else
+                error("Key $s not in config and not supplied as keyword argument.")
+            end
+        end)
+end
+
+interpolate(conf::Dict{Any,Any}, property::Any; kwargs...) =
+    interpolate(conf, [property]; kwargs...)
+
+"""
+See `ComfyYAML.interpolate`.
+"""
+interpolate!(conf::Dict{Any,Any}, property::AbstractArray; kwargs...) =
+    _setindex!(conf, interpolate(conf, property; kwargs...), property...)
+
+interpolate!(conf::Dict{Any,Any}, property::Any; kwargs...) =
+    interpolate!(conf, [property]; kwargs...)
+
+
 """
     expand(config, property)
 

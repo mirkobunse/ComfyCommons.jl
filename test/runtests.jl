@@ -53,3 +53,10 @@ for cei in ce
     @test typeof(cei["subexpandlist"][1]["y"]) <: Union{eltype(c["subexpandlist"][1]["y"]), Void}
 end
 
+# test property interpolation
+c = ComfyYAML.load_file("test.yml")
+@test ComfyYAML.interpolate(c, "inter") == "blaw-blaw"
+@test ComfyYAML.interpolate(c, "multi") == "blaw-blaw-blaw"
+@test_throws ErrorException ComfyYAML.interpolate(c, "kwarg") # argument missing
+@test ComfyYAML.interpolate(c, "kwarg", arg="X") == "blaw-X"
+

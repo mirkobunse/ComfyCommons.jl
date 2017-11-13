@@ -19,3 +19,8 @@ subexpandlist:
     y: [ "y1", "y2", "y3" ]
   - x: "X"
     P: [ "P1", "P2", "P3" ]
+
+# test property interpolation
+inter: "blaw-$simple"
+multi: "blaw-$simple-$simple"
+kwarg: "blaw-$arg"
