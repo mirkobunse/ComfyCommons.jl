@@ -59,9 +59,9 @@ remoteurl(remote::String="origin") =
 
 Return true iff changes are made in the current working directory (staged or unstaged).
 """
-haschanges() = try
-    run(`git diff --quiet`) # throws error if differences are present
-    run(`git diff --cached --quiet`)
+haschanges(path::String...=".") = try
+    run(`git diff --quiet $path`) # throws error if differences are present
+    run(`git diff --cached --quiet $path`)
     false
 catch true end # if something is catched, there are changes
 
