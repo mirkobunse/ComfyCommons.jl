@@ -36,10 +36,9 @@ info(msg...) =
 # sub-module
 module Git
 
-_VERSION =
-    try chomp(readstring(`git --version`)) # throws error git is not installed
-    catch nothing end
-if (_VERSION == nothing) warn("Module ComfyUtil.Git could not find git installation") end
+_IS_REPO = try chomp(readstring(`git rev-parse --show-toplevel`)) != ""
+           catch false end
+if (!_IS_REPO) warn("ComfyUtil.Git is called from $(pwd()), which is not a git repository.") end
 
 """
     commithash()
@@ -47,7 +46,7 @@ if (_VERSION == nothing) warn("Module ComfyUtil.Git could not find git installat
 Return the hash of the last git commit.
 """
 commithash() =
-    if _VERSION != nothing # only run if git installation present
+    if _IS_REPO # only run inside git repository
         try chomp(readstring(`git rev-parse HEAD`)) # read hash without newline character
         catch "" end
     else "" end
@@ -58,7 +57,7 @@ commithash() =
 Return the URL of the given git remote.
 """
 remoteurl(remote::String="origin") =
-    if _VERSION != nothing # only run if git installation present
+    if _IS_REPO # only run inside git repository
         try chomp(readstring(`git config --get remote.$remote.url`))
         catch "" end
     else "" end
@@ -69,7 +68,7 @@ remoteurl(remote::String="origin") =
 Return true iff changes are made in the current working directory (staged or unstaged).
 """
 haschanges(path::String...=".") =
-    if _VERSION != nothing # only run if git installation present
+    if _IS_REPO # only run inside git repository
         try
             run(`git diff --quiet $path`) # throws error if differences are present
             run(`git diff --cached --quiet $path`)
