@@ -36,14 +36,21 @@ info(msg...) =
 # sub-module
 module Git
 
+_VERSION =
+    try chomp(readstring(`git --version`)) # throws error git is not installed
+    catch nothing end
+if (_VERSION == nothing) warn("Module ComfyUtil.Git could not find git installation") end
+
 """
     commithash()
 
 Return the hash of the last git commit.
 """
 commithash() =
-    try chomp(readstring(`git rev-parse HEAD`)) # read hash without newline character
-    catch "" end
+    if _VERSION != nothing # only run if git installation present
+        try chomp(readstring(`git rev-parse HEAD`)) # read hash without newline character
+        catch "" end
+    else "" end
 
 """
     remoteurl(remote="origin")
@@ -51,19 +58,24 @@ commithash() =
 Return the URL of the given git remote.
 """
 remoteurl(remote::String="origin") =
-    try chomp(readstring(`git config --get remote.$remote.url`))
-    catch "" end
+    if _VERSION != nothing # only run if git installation present
+        try chomp(readstring(`git config --get remote.$remote.url`))
+        catch "" end
+    else "" end
 
 """
     haschanges()
 
 Return true iff changes are made in the current working directory (staged or unstaged).
 """
-haschanges(path::String...=".") = try
-    run(`git diff --quiet $path`) # throws error if differences are present
-    run(`git diff --cached --quiet $path`)
-    false
-catch true end # if something is catched, there are changes
+haschanges(path::String...=".") =
+    if _VERSION != nothing # only run if git installation present
+        try
+            run(`git diff --quiet $path`) # throws error if differences are present
+            run(`git diff --cached --quiet $path`)
+            false
+        catch true end # if something is catched, there are changes
+    else false end
 
 end # Git
 
