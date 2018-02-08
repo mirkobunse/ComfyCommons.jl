@@ -19,8 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with ComfyUtil.  If not, see <http://www.gnu.org/licenses/>.
 # 
-
 module ComfyUtil
+
+
+export Git, Yaml, info
+
+
+# sub-modules
+include("git.jl")
+include("yaml.jl")
 
 
 """
@@ -30,53 +37,6 @@ Print a log message to the console, prefixed by the current process ID and a dat
 """
 info(msg...) =
     Base.info(msg..., prefix="[$(myid())] $(Dates.format(now(), "yy-mm-dd HH:MM:SS")): ")
-
-
-
-# sub-module
-module Git
-
-_IS_REPO = try chomp(readstring(`git rev-parse --show-toplevel`)) != ""
-           catch false end
-if (!_IS_REPO) warn("ComfyUtil.Git is called from $(pwd()), which is not a git repository.") end
-
-"""
-    commithash()
-
-Return the hash of the last git commit.
-"""
-commithash() =
-    if _IS_REPO # only run inside git repository
-        try chomp(readstring(`git rev-parse HEAD`)) # read hash without newline character
-        catch "" end
-    else "" end
-
-"""
-    remoteurl(remote="origin")
-
-Return the URL of the given git remote.
-"""
-remoteurl(remote::String="origin") =
-    if _IS_REPO # only run inside git repository
-        try chomp(readstring(`git config --get remote.$remote.url`))
-        catch "" end
-    else "" end
-
-"""
-    haschanges()
-
-Return true iff changes are made in the current working directory (staged or unstaged).
-"""
-haschanges(path::String...=".") =
-    if _IS_REPO # only run inside git repository
-        try
-            run(`git diff --quiet $path`) # throws error if differences are present
-            run(`git diff --cached --quiet $path`)
-            false
-        catch true end # if something is catched, there are changes
-    else false end
-
-end # Git
 
 
 end # module
