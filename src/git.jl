@@ -1,12 +1,12 @@
 # 
-# ComfyUtil
+# ComfyCommons
 # Copyright 2017 Mirko Bunse
 # 
 # 
 # Comfortable utility functions.
 # 
 # 
-# ComfyUtil is free software: you can redistribute it and/or modify
+# ComfyCommons is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
@@ -17,9 +17,9 @@
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with ComfyUtil.  If not, see <http://www.gnu.org/licenses/>.
+# along with ComfyCommons.  If not, see <http://www.gnu.org/licenses/>.
 # 
-module Git # sub-module of ComfyUtil
+module Git # sub-module of ComfyCommons
 
 
 export commithash, remoteurl, haschanges
@@ -27,7 +27,7 @@ export commithash, remoteurl, haschanges
 
 _IS_REPO = try chomp(readstring(`git rev-parse --show-toplevel`)) != ""
            catch false end
-if (!_IS_REPO) warn("ComfyUtil.Git is called from $(pwd()), which is not a git repository.") end
+if (!_IS_REPO) warn("ComfyCommons.Git is called from $(pwd()), which is not a git repository.") end
 
 
 """

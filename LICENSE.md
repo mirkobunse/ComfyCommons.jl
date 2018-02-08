@@ -1,4 +1,4 @@
-The ComfyUtil.jl package is licensed under the GNU General Public License, version 3.
+The ComfyCommons.jl package is licensed under the GNU General Public License, version 3.
 
 Copyright 2017 Mirko Bunse.
 

@@ -1,4 +1,4 @@
-using Base.Test, ComfyUtil
+using Base.Test, ComfyCommons
 
 # expand the properties 'array' and 'complexarray' in the test configuration
 c = Yaml.load_file("test.yml") # load the test file
