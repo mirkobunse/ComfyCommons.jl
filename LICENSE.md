@@ -1,6 +1,6 @@
 The ComfyCommons.jl package is licensed under the GNU General Public License, version 3.
 
-Copyright 2017 Mirko Bunse.
+Copyright 2017, 2018 Mirko Bunse.
 
 
 

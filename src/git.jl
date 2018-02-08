@@ -1,12 +1,12 @@
 # 
-# ComfyCommons
-# Copyright 2017 Mirko Bunse
+# ComfyCommons.jl
+# Copyright 2017, 2018 Mirko Bunse
 # 
 # 
 # Comfortable utility functions.
 # 
 # 
-# ComfyCommons is free software: you can redistribute it and/or modify
+# ComfyCommons.jl is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with ComfyCommons.  If not, see <http://www.gnu.org/licenses/>.
+# along with ComfyCommons.jl.  If not, see <http://www.gnu.org/licenses/>.
 # 
 module Git # sub-module of ComfyCommons
 
