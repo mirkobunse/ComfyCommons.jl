@@ -22,12 +22,13 @@
 module ComfyCommons
 
 
-export Git, Yaml, info
+export Git, Yaml, Pgfplots, info
 
 
 # sub-modules
 include("git.jl")
 include("yaml.jl")
+include("pgfplots.jl")
 
 
 """
