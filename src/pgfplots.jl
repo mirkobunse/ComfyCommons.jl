@@ -51,7 +51,7 @@ resetpgftemplate() = setpgftemplate(TEMPLATE_PLOT_PLACEHOLDER)
 
 
 # 
-# The remainder of this file overrides methods of PGFPlots and TikzPictures to improve the
+# The remainder of this file overwrites methods of PGFPlots and TikzPictures to improve the
 # format of generated .tex files. Most of this is syntactic sugar like line breaks and 
 # indentation.
 # 
@@ -89,21 +89,17 @@ function PGFPlots.optionHelper(o::IOBuffer, m, object; brackets=false, otherOpti
     for (sym, str) in m
         if getfield(object,sym) != nothing
             if first
+                first = false
                 if brackets
-                    print(o, "[")
+                    print(o, "[\n  ")
                 end
             else
-                println(o, ",")
+                print(o, ",\n  ")
             end
             if length(str) > 0
                 print(o, "$str = {")
             end
-            if first
-                first = false
-            else
-                print(o, "  ")
-            end
-            PGFPlots.printObject(o, getfield(object,sym))
+            print(o, join(map(strip, split(string(getfield(object,sym)), ",")), ",\n  "))
             if length(str) > 0
                 print(o, "}")
             end
@@ -113,7 +109,7 @@ function PGFPlots.optionHelper(o::IOBuffer, m, object; brackets=false, otherOpti
         if first
             first = false
             if brackets
-                print(o, "[")
+                println(o, "[")
             end
         else
             println(o, ",")
@@ -136,7 +132,7 @@ function PGFPlots.optionHelper(o::IOBuffer, m, object; brackets=false, otherOpti
         end
     end
     if !first && brackets
-        println(o, "]")
+        println(o, "\n]")
     end
 end
 
