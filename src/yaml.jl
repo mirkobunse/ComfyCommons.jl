@@ -163,13 +163,16 @@ expand(config::Dict{Any,Any}, property::Any) =
     [ Dict(config..., property => v) for v in _getindex(config, property) ]
 
 # deeper in the configuration tree, it gets slightly more complex
-function expand(config::Dict{Any,Any}, property::AbstractArray)
+expand(config::Dict{Any,Any}, property::AbstractArray) =
     [ begin
         c = deepcopy(config)
         _setindex!(c, v, property...)
         c
     end for v in vcat(_getindex(config, property...)...) ]
-end
+
+# multiple expansions
+expand(config::Dict{Any,Any}, properties::Any...) = # Any also matches AbstractArrays
+    vcat([ expand(expansion, properties[2:end]...) for expansion in expand(config, properties[1]) ]...)
 
 # functions that complement the usual indexing with varargs
 # (does not override Base functions because that would screw up some Base functionality)
