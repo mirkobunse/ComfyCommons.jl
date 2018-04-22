@@ -37,7 +37,7 @@ include("pgfplots.jl")
 Print a log message to the console, prefixed by the current process ID and a date time string.
 """
 info(msg...) =
-    Base.info(msg..., prefix="[$(myid())] $(Dates.format(now(), "yy-mm-dd HH:MM:SS")): ")
+    Base.info(msg..., prefix="[$(@sprintf "%2d" myid())] $(Dates.format(now(), "yy-mm-dd HH:MM:SS")): ")
 
 
 end # module
