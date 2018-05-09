@@ -22,7 +22,7 @@
 module ComfyCommons
 
 
-export Git, Yaml, Pgfplots, info
+export Git, Yaml, Pgfplots, info, warn
 
 
 # sub-modules
@@ -36,8 +36,15 @@ include("pgfplots.jl")
 
 Print a log message to the console, prefixed by the current process ID and a date time string.
 """
-info(msg...) =
-    Base.info(msg..., prefix="[$(@sprintf "%2d" myid())] $(Dates.format(now(), "yy-mm-dd HH:MM:SS")): ")
+info(msg...) = Base.info(msg..., prefix = _prefix("INFO"))
 
+"""
+    warn(msg...)
+
+Print a log message to the console, prefixed by the current process ID and a date time string.
+"""
+warn(msg...) = Base.warn(msg..., prefix = _prefix("WARNING"))
+
+_prefix(s::String) = "[$(@sprintf "%2d" myid())] $s $(Dates.format(now(), "yy-mm-dd HH:MM:SS")): "
 
 end # module
