@@ -45,6 +45,6 @@ Print a log message to the console, prefixed by the current process ID and a dat
 """
 warn(msg...) = Base.warn(msg..., prefix = _prefix("WARNING"))
 
-_prefix(s::String) = "[$(@sprintf "%2d" myid())] $s $(Dates.format(now(), "yy-mm-dd HH:MM:SS")): "
+_prefix(s::String) = "[$(@sprintf "%2d" myid())] $(Dates.format(now(), "yy-mm-dd HH:MM:SS")) $s: "
 
 end # module
