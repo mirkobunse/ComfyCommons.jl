@@ -123,7 +123,7 @@ The `property` argument can be an array specifying a root-to-leaf path in the co
 tree.
 """
 function interpolate(conf::Dict{Any,Any}, property::AbstractArray; kwargs...)
-    replace(_getindex(conf, property...), r"\$\w+", s ->
+    replace(_getindex(conf, property...), r"\$[a-zA-Z]+", s ->
         if haskey(conf, s[2:end])
             conf[s[2:end]]
         else
@@ -175,22 +175,25 @@ expand(config::Dict{Any,Any}, properties::Any...) = # Any also matches AbstractA
     vcat([ expand(expansion, properties[2:end]...) for expansion in expand(config, properties[1]) ]...)
 
 # functions that complement the usual indexing with varargs
-# (does not override Base functions because that would screw up some Base functionality)
-@inline @inbounds _getindex(val::Dict, keys::Any...) =
+# (overriding Base.getindex and Base.setindex would screw up these methods)
+@inbounds _getindex(val::Dict, keys::Any...) =
     if length(keys) > 1
         _getindex(val[keys[1]], keys[2:end]...)
     else
         val[keys[1]]
     end
-@inline @inbounds _getindex(arr::AbstractArray, keys::Any...) =
+
+@inbounds _getindex(arr::AbstractArray, keys::Any...) =
     [ try _getindex(val, keys...) end for val in arr ]
-@inline @inbounds _setindex!(val::Dict, value::Any, keys::Any...) = 
+
+@inbounds _setindex!(val::Dict, value::Any, keys::Any...) = 
     if length(keys) > 1
         _setindex!(val[keys[1]], value, keys[2:end]...)
     elseif haskey(val, keys[1])
         val[keys[1]] = value
     end
-@inline @inbounds _setindex!(arr::AbstractArray, value::Any, keys::Any...) =
+
+@inbounds _setindex!(arr::AbstractArray, value::Any, keys::Any...) =
     [ try _setindex!(val, value, keys...) end for val in arr ]
 
 
