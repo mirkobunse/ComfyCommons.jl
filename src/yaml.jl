@@ -23,7 +23,7 @@ module Yaml # sub-module of ComfyCommons
 
 
 import YAML
-export load_file, write_file, deepcopy, expand
+export load_file, write_file, deepcopy, expand, interpolate, interpolate!
 
 
 """
