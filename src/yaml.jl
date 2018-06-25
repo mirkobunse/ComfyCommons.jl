@@ -23,7 +23,7 @@ module Yaml # sub-module of ComfyCommons
 
 
 import YAML
-export load_file, write_file, deepcopy, expand, interpolate, interpolate!
+export load_file, write_file, expand, interpolate, interpolate!
 
 
 """
@@ -94,18 +94,6 @@ indent(str::AbstractString, level::Int, ignorelevel::Bool=false) =
 # 
 # end of file writing
 # 
-
-
-"""
-    deepcopy(config)
-
-Create a deep copy of the given `Dict` object.
-"""
-function deepcopy(config::Dict{Any,Any})
-    buf = IOBuffer()
-    write(buf, config)            # serialize
-    YAML.load(String(take!(buf))) # deserialize
-end
 
 
 
