@@ -21,30 +21,28 @@
 # 
 module ComfyCommons
 
-
-export Git, Yaml, Pgfplots, info, warn
-
+export Imports, Logging, Git, Yaml, Pgfplots, confirm_exit
 
 # sub-modules
+include("imports.jl")
+include("logging.jl")
 include("git.jl")
 include("yaml.jl")
 include("pgfplots.jl")
 
-
 """
-    info(msg...)
+    confirm_exit()
 
-Print a log message to the console, prefixed by the current process ID and a date time string.
+Ask the user to confirm that he would like to exit the current session. Add the following
+snippet to your `~/.julia/config/startup.jl` file to hide `Base.exit`:
+
+    exit() = ComfyCommons.confirm_exit()
 """
-info(msg...) = Base.info(msg..., prefix = _prefix("INFO"))
-
-"""
-    warn(msg...)
-
-Print a log message to the console, prefixed by the current process ID and a date time string.
-"""
-warn(msg...) = Base.warn(msg..., prefix = _prefix("WARNING"))
-
-_prefix(s::String) = "[$(@sprintf "%2d" myid())] $(Dates.format(now(), "yy-mm-dd HH:MM:SS")) $s: "
+function confirm_exit()
+    print("ComfyCommons: Do you really want to exit? ([Y]/n): ")
+    if !startswith(readline(stdin), "n")
+        Base.exit()
+    end
+end
 
 end # module

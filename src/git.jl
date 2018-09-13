@@ -25,8 +25,8 @@ module Git # sub-module of ComfyCommons
 export commithash, remoteurl, haschanges
 
 
-_IS_REPO = try chomp(readstring(`git rev-parse --show-toplevel`)) != ""
-           catch false end
+_IS_REPO = try chomp(read(`git rev-parse --show-toplevel`, String)) != ""
+           catch; false end
 if (!_IS_REPO) warn("ComfyCommons.Git is called from $(pwd()), which is not a git repository.") end
 
 
@@ -37,8 +37,8 @@ Return the hash of the last git commit.
 """
 commithash() =
     if _IS_REPO # only run inside git repository
-        try chomp(readstring(`git rev-parse HEAD`)) # read hash without newline character
-        catch "" end
+        try chomp(read(`git rev-parse HEAD`, String)) # read hash without newline character
+        catch; "" end
     else "" end
 
 
@@ -49,8 +49,8 @@ Return the URL of the given git remote.
 """
 remoteurl(remote::String="origin") =
     if _IS_REPO # only run inside git repository
-        try chomp(readstring(`git config --get remote.$remote.url`))
-        catch "" end
+        try chomp(read(`git config --get remote.$remote.url`, String))
+        catch; "" end
     else "" end
 
 
@@ -65,7 +65,7 @@ haschanges(path::String...=".") =
             run(`git diff --quiet $path`) # throws error if differences are present
             run(`git diff --cached --quiet $path`)
             false
-        catch true end # if something is catched, there are changes
+        catch; true end # if something is catched, there are changes
     else false end
 
 

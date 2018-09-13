@@ -111,17 +111,16 @@ The `property` argument can be an array specifying a root-to-leaf path in the co
 tree.
 """
 function interpolate(conf::Dict{Any,Any}, property::AbstractArray; kwargs...)
-    replace(_getindex(conf, property...), r"\$[a-zA-Z]+", s ->
-        if haskey(conf, s[2:end])
-            conf[s[2:end]]
+    replace(_getindex(conf, property...), r"\$[a-zA-Z]+" => s -> begin
+        s = s[2:end] # remove leading '$'
+        if haskey(conf, s)
+            conf[s]
+        elseif haskey(kwargs, Symbol(s))
+            kwargs[Symbol(s)]
         else
-            kwarg = find(k -> string(k[1]) == s[2:end], kwargs)
-            if length(kwarg) > 0
-                kwargs[kwarg[1]][2]
-            else
-                error("Key $s not in config and not supplied as keyword argument.")
-            end
-        end)
+            error("Key $s not in config and not supplied as keyword argument.")
+        end
+    end)
 end
 
 interpolate(conf::Dict{Any,Any}, property::Any; kwargs...) =
@@ -172,7 +171,7 @@ expand(config::Dict{Any,Any}, properties::Any...) = # Any also matches AbstractA
     end
 
 @inbounds _getindex(arr::AbstractArray, keys::Any...) =
-    [ try _getindex(val, keys...) end for val in arr ]
+    [ try _getindex(val, keys...) catch; end for val in arr ]
 
 @inbounds _setindex!(val::Dict, value::Any, keys::Any...) = 
     if length(keys) > 1
@@ -182,7 +181,7 @@ expand(config::Dict{Any,Any}, properties::Any...) = # Any also matches AbstractA
     end
 
 @inbounds _setindex!(arr::AbstractArray, value::Any, keys::Any...) =
-    [ try _setindex!(val, value, keys...) end for val in arr ]
+    [ try _setindex!(val, value, keys...) catch; end for val in arr ]
 
 
 end
