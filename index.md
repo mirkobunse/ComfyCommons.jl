@@ -6,19 +6,17 @@ layout: default_toc
 
 ### The Comfy Workflow Manifesto
 
-...or let's call it *Julia Workflow Considerations*. Yeah, I like that one.
+...or let's call it *Julia Workflow Recommendations*. Yeah, I like that one.
 
-This article is meant to discuss one proven way of interacting with the Julia language
-and its kernel. It proclaims some paradigms that can help newcomers to avoid some
-pitfalls and may be interesting for well-tried Julia developers, as well.
+This article is meant to discuss one proven way of interacting with the Julia language.
+It proclaims a few paradigms to help newcomers in avoiding some pitfalls and
+it may be interesting for well-tried Julia developers, as well.
 If you are totally new to the Julia language you should start with the basics, as presented
-in [the Julia Getting-Started guide](https://docs.julialang.org/en/stable/manual/getting-started/)
-and the tutorials linked by that article.
+in [the Julia Getting-Started guide](https://docs.julialang.org/en/stable/manual/getting-started/).
 
-The workflow suggested in this article can be followed conveniently using the
-[the ComfyBase.jl package](package).
-Please share your thoughts about the manifesto's paradigms and the package in
-[the issues](https://github.com/mirkobunse/ComfyBase.jl/issues) of the ComfyBase GitHub project.
+The workflow suggested here is easily implemented with the ComfyCommons.jl package.
+Please share your thoughts about the paradigms and the package in
+[the issues](https://github.com/mirkobunse/ComfyCommons.jl/issues) of the ComfyCommons repository on GitHub.
 
 ---
 
@@ -26,29 +24,30 @@ Please share your thoughts about the manifesto's paradigms and the package in
 
 
 
-# Julia Workflow Considerations
+# Julia Workflow Recommendations
 
-[The Julia language](https://julialang.org/) has one of its greatest strengths in
-enabling programmers to explore their data conveniently.
+A major strength of [the Julia language](https://julialang.org/) is exploration of data and alternatives in implementation.
 Powerful and easy-to-write aggregations can be carried out using
 [the popular DataFrames package](https://dataframesjl.readthedocs.io/en/latest/).
-Aggregated values can be plotted with [Gadfly](http://gadflyjl.org/stable/) or some
-other plotting library.
+Aggregated values can be plotted with [Gadfly](http://gadflyjl.org/stable/) or other plotting libraries.
 Usually, the exploratory part of programming is done directly in the Julia REPL
 or in an [IJulia](https://github.com/JuliaLang/IJulia.jl) notebook.
 
 When some exploratory code matures, it should be transformed into a Julia module that
-can be reused across projects. Julia provides a number of concepts that can
-be used to optimize code for runtime efficiency, including parallelization, optionally
-fixed parameter types and precompilation.
+can be reused across projects. Julia provides a number of concepts used in optimizing code
+for runtime efficiency, including parallelization, explicit parameter types and
+pre-compilation. In fact, the Julia developers wanted to create a language in which
+prototypes can be implemented quickly - like in a scripting language - while mature and
+lightning-fast code can be written in that same language.
+In contrast, Python developers sometimes need to write parts of their code in C/C++ in order
+to be efficient.
 
 
 
 ## The role of JIT compilation
 
-Julias just-in-time (JIT) compilation only translates your program code into something
-your machine can execute when this is required, i.e., when a function is called the
-first time.
+Julias just-in-time (JIT) compilation translates your Julia code into something a machine
+can execute only when this is required, i.e. when a function is called the first time.
 This is inevitably causing long execution times for every first function call.
 Subsequent calls to a compiled function will be super fast, though.
 
@@ -57,9 +56,9 @@ For the exploration of data, JIT compilation imposes the following paradigm:
 <p style="margin-left: 6%"><big>Keep your kernel alive</big></p>
 
 Do not call `julia myscript.jl` from the command line repeatedly to execute some
-script that you develop currently.
-Doing so will result in the kernel shutting down immediately after each call. You
-will not benefit from the JIT compilation because on every call of `julia myscript.jl`
+script which you develop currently.
+It would result in the kernel shutting down immediately after each call. You would
+not benefit from the JIT compilation because on every call of `julia myscript.jl`
 the kernel will have to compile everything.
 
 If you would like to run that same script repeatedly, start `julia` (without arguments)
@@ -85,8 +84,7 @@ do not like to use the REPL.
 Julia modules provide a way to encapsule functionality that can be reused on multiple
 occasions.
 Having explored your data, it is often useful to mature your explorations (selection,
-aggregation, plotting,...) into a module. When your data changes, you will be able to
-re-run the module's functions with the new data, giving you the latest insights.
+aggregation, plotting,...) into a module.
 Some things like common low-level aggregations for multiple data sources or setting
 your preferred defaults for plots can even be reused across projects.
 
@@ -122,38 +120,37 @@ from the living kernel instead of restarting julia frequently. Consisely:
 
 <p style="margin-left: 6%"><big>Import your modules and reload on modification</big></p>
 
-You can do this easily:
+You can do this easily, using [the beautiful Revise package](https://github.com/timholy/Revise.jl):
 
 ```julia
+julia> using Revise
 julia> import MyModule
 julia> MyModule.dostuff()
 
 # ... modify the MyModule.dostuff function ...
 
-julia> reload("MyModule")
+julia> revise() # reload all changes
 julia> MyModule.dostuff() # changes are applied
 ```
-
-You may have noticed that this example uses the `ìmport` statement instead of the more common
-`using`. This is due to the fact that a module loaded with `using` can not be reloaded this way.
 
 
 
 ## Kernel initialization
 
-On every start of the Julia kernel, a hidden file in your home directory named `~/.juliarc.jl` is executed.
+On every start of the Julia kernel, a start-up file `~/.julia/config/startup.jl` is executed.
 Since this file is a Julia script, you can type in any Julia code that you consider useful for kernel
 initialization. This may include `import` and `using` statements and function definitions.
 Each time you start Julia, these imports and functions become available.
 
-Initializing the kernel with the `~/.juliarc.jl` is a convenient way to
+Initializing the kernel with the start-up file is a convenient way to
 
 <p style="margin-left: 6%"><big>Tailor the kernel's initialization to your needs</big></p>
 
 Take a minute and think about which modules you use (almost) every time. For me, this is
-[the DataFrames package](https://dataframesjl.readthedocs.io/en/latest/).
-Having the statement `using DataFrames` inside my `~/.juliarc.jl` prevents me from typing
-this every time I start Julia. Similar statements for your usually used modules
+[the DataFrames package](https://dataframesjl.readthedocs.io/en/latest/) and
+[Revise](https://github.com/timholy/Revise.jl).
+Having the statement `using Revise, DataFrames` inside my start-up file prevents me from
+typing this line every time I start Julia. Similar statements for your usually used modules
 will make your kernel ready for work on every start.
 
 You may want to have kernel initialization that is specific to some project, like the import
@@ -164,10 +161,12 @@ Being more specific about the previous paradigm:
 
 <p style="margin-left: 6%"><big>Base the kernel's initialization on your project</big></p>
 
-You can realize such behavior by telling `~/.juliarc.jl` to automatically include an initialization file
-in the current working directory. The working directory can be any project directory then,
-based on where you start Julia from.
-ComfyBase provides a method `loadrc` to support such workspace-specific kernel initialization
-which nicely maps to the paradigms stated above.
+You can realize such behavior by telling the start-up file to automatically include an
+initialization file in the current working directory. The working directory can be any
+project directory then, based on where you start Julia from.
+Simply paste the following line into your start-up file:
 
+```julia
+isfile("_init.jl") && include(joinpath(pwd(), "_init.jl"))
+```
 
