@@ -4,8 +4,6 @@ os:
   - linux
   - osx
 julia:
-  - 0.6
-  - 0.7
   - 1.0
   - nightly
 notifications:
@@ -17,10 +15,7 @@ git:
 ## (tests will run but not make your overall status red)
 matrix:
   allow_failures:
-  - julia: 0.6
-  - julia: 1.0
   - julia: nightly
-  - os: osx
 
 ## uncomment and modify the following lines to manually install system packages
 #addons:
