@@ -5,6 +5,7 @@ os:
   - osx
 julia:
   - 0.6
+  - 1.0
   - nightly
 notifications:
   email: false
@@ -17,19 +18,10 @@ matrix:
   allow_failures:
   - julia: nightly
 
-## uncomment and modify the following lines to manually install system packages
-#addons:
-#  apt: # apt-get for linux
-#    packages:
-#    - gfortran
-#before_script: # homebrew for mac
-#  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
+script:
+  - julia --color=yes -e 'if VERSION < v"0.7.0-DEV.5183"; Pkg.clone(pwd()); Pkg.checkout("${JL_PKG}", "julia-0.6"); Pkg.build("${JL_PKG}"); else using Pkg; Pkg.build(); end'
+  - julia --color=yes --check-bounds=yes -e 'if VERSION < v"0.7.0-DEV.5183"; Pkg.test("${JL_PKG}", coverage=true); else using Pkg; Pkg.test(coverage=true); end'
 
-## uncomment the following lines to override the default test script
-#script:
-#  - julia -e 'Pkg.clone(pwd()); Pkg.build("ComfyCommons"); Pkg.test("ComfyCommons"; coverage=true)'
+# push coverage results to Codecov
 after_success:
-  # push coverage results to Coveralls
-  - julia -e 'cd(Pkg.dir("ComfyCommons")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
-  # push coverage results to Codecov
-  - julia -e 'cd(Pkg.dir("ComfyCommons")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'cd(Pkg.dir("${JL_PKG}")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'

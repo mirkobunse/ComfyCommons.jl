@@ -19,34 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with ComfyCommons.jl.  If not, see <http://www.gnu.org/licenses/>.
 # 
-module ComfyCommons
-
-
-export Imports, Logging, Git, Yaml, Pgfplots, confirm_exit
-
-
-# sub-modules
-include("imports.jl")
-include("logging.jl")
-include("git.jl")
-include("yaml.jl")
-include("pgfplots.jl")
-
+module Logging # sub-module of ComfyCommons
 
 """
-    confirm_exit()
+    info(msg...)
 
-Ask the user to confirm that he would like to exit the current session. Add the following
-snippet to your `~/.juliarc.jl` file to hide `Base.exit`:
-
-    exit() = ComfyCommons.confirm_exit()
+Print a log message to the console, prefixed by the current process ID and a date time string.
 """
-function confirm_exit()
-    print("ComfyCommons: Do you really want to exit? ([Y]/n): ")
-    if !startswith(readline(stdin), "n")
-        Base.exit()
-    end
+info(msg...) = Base.info(msg..., prefix = _prefix("INFO"))
+
+"""
+    warn(msg...)
+
+Print a log message to the console, prefixed by the current process ID and a date time string.
+"""
+warn(msg...) = Base.warn(msg..., prefix = _prefix("WARNING"))
+
+# helper
+_prefix(s::String) = "[$(@sprintf "%2d" myid())] $(Dates.format(now(), "yy-mm-dd HH:MM:SS")) $s: "
+
 end
-
-
-end # module
