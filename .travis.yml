@@ -5,18 +5,7 @@ os:
   - osx
 julia:
   - 0.6
-  - 1.0
-  - nightly
 notifications:
   email: false
 git:
   depth: 99999999
-
-# allow failures on nightly julia
-matrix:
-  allow_failures:
-  - julia: nightly
-
-# push coverage results to Codecov
-after_success:
-  - julia -e "cd(Pkg.dir(\"${JL_PKG}\")); Pkg.add(\"Coverage\"); using Coverage; Codecov.submit(Codecov.process_folder())"
