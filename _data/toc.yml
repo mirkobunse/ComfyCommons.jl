@@ -1,5 +1,5 @@
 - path:  "."
   title: "Manifesto"
 
-- path:  "getting-started"
-  title: "Getting Started"
+- path:  "usage"
+  title: "Usage of ComfyCommons.jl"
