@@ -4,20 +4,10 @@ layout: default_toc
 
 
 
-### Getting Started
-
-To get started with ComfyCommons, simply paste the provided code directly into your Julia REPL (for installation),
-into your `~/.julia/config/startup.jl` file (for general kernel initialization), and into your project-specific
-`_init.jl` files.
-
----
-
-
-
 ## Installation
 
-To install the current version of ComfyCommons, get into the package administration mode of the Julia REPL (v0.7 and higher)
-by typing `]`.
+Get into the package administration mode of the Julia REPL (v0.7 and higher) by typing `]`
+(a closing square bracket). Add the package from the git repository:
 
       (v0.7) pkg> add https://github.com/mirkobunse/ComfyCommons.jl.git
 
@@ -25,43 +15,42 @@ by typing `]`.
 
 ## Project-specific Initialization
 
-Inside `pwd/_init.jl`, you can initialize the kernel specifically for your
-project:
+ComfyCommons can import all modules contained in a directory. This is helpful in projects
+which consist of multiple, loosely coupled modules. You may paste the following code into
+the `_init.jl` file of your project:
 
-      # pwd/_init.jl, as included when julia is started from pwd
+```julia
+import ComfyCommons
+
+# include all modules from the project's source folder
+ComfyCommons.Imports.importdir("src")
+```
       
-      import ComfyCommons
-      
-      # include all modules from the project's source folder pwd/src
-      ComfyCommons.Imports.importdir("src")
-      
-You can tell `importdir` to work recursively for all sub-directories of the specified directory.
+You can also tell `importdir` to work recursively, or to include only specified modules.
 
 
 
 ## Git Utilities
 
-TODO
+*TODO* (see the [documentation](#documentation) below)
 
 ## YAML Utilities
 
-TODO
+*TODO* (see the [documentation](#documentation) below)
 
 ## PGFPlots Utilities
 
-TODO
+*TODO* (see the [documentation](#documentation) below)
 
 
 
 ## Documentation
 
-All of the provided functions are documented. To view the documentation, type a question mark followed by
-the function name into your Julia REPL:
+The documentation of all provided functions is accessible from the Julia REPL.
+Type a question mark to get into the help mode. Then type any function name:
 
-```julia
-julia> using ComfyCommons
-julia> ?ComfyCommons.importdir
-```
+    julia> using ComfyCommons
+    help?> ComfyCommons.importdir
 
 
 
