@@ -9,7 +9,7 @@ layout: default_toc
 Get into the package administration mode of the Julia REPL (v0.7 and higher) by typing a
 closing square bracket `]`. Add the package from the Git repository:
 
-      (v0.7) pkg> add https://github.com/mirkobunse/ComfyCommons.jl.git
+    (v0.7) pkg> add https://github.com/mirkobunse/ComfyCommons.jl.git
 
 
 
@@ -64,7 +64,8 @@ keep track of how they have been generated.
 
 `ComfyCommons.Yaml` is used to manipulate YAML configuration files.
 
-- `load_file(filename; kwargs...)` works like the original function from the `YAML` package,
+- `load_file(filename; kwargs...)` works like the original function from the
+  [YAML](https://github.com/BioJulia/YAML.jl) package,
   but is extended by arbitrary keyword arguments which become part of the returned
   configuration.
 - `write_file(filename, config)` stores a formatted YAML configuration at the given file path.
@@ -81,17 +82,25 @@ keep track of how they have been generated.
 
 ## PGFPlots
 
-*TODO* (see the [documentation](#documentation) below)
+`ComfyCommons.Pgfplots` enhances LaTeX plot exports by overriding some internals of the
+[PGFPlots](https://github.com/JuliaTeX/PGFPlots.jl) package.
+
+- You can provide a template string, in which the placeholder sub-string `{PLOT}` is replaced
+  by the generated TeX code. The template is set with `setpgftemplate(template)`.
+- In contrast to [PGFPlots](https://github.com/JuliaTeX/PGFPlots.jl), no `tikzpicture`
+  environment surrounds the generated code. If you like to have this environment, please set
+  the template accordingly.
+- Last but not least, the format of the generated Tex code is improved.
 
 
 
-## Documentation
+## Further Documentation
 
-The documentation of all provided functions is accessible from the Julia REPL.
-Type a question mark to get into the help mode. Then type any function name:
+The documentation of all functions is accessible from the Julia REPL.
+Type a question mark to get into the help mode, followed by a function name:
 
     julia> using ComfyCommons
-    help?> ComfyCommons.importdir
+    help?> ComfyCommons.Imports.importdir
 
 
 
