@@ -21,14 +21,24 @@
 # 
 module Git # sub-module of ComfyCommons
 
+export isrepo, commithash, remoteurl, haschanges
 
-export commithash, remoteurl, haschanges
+"""
+    isrepo()
 
+Returns true iff the current working directory is a git repository.
+"""
+isrepo() = _isrepo(false)
 
-_IS_REPO = try chomp(read(`git rev-parse --show-toplevel`, String)) != ""
-           catch; false end
-if (!_IS_REPO) warn("ComfyCommons.Git is called from $(pwd()), which is not a git repository.") end
-
+# actual implementation is hidden
+_isrepo(warn::Bool) =
+    try
+        run(pipeline(`git rev-parse --show-toplevel`, stderr=devnull, stdout=devnull))
+        true
+    catch;
+        warn && @warn "ComfyCommons.Git is called from $(pwd()), which is not a git repository."
+        false
+    end
 
 """
     commithash()
@@ -36,11 +46,10 @@ if (!_IS_REPO) warn("ComfyCommons.Git is called from $(pwd()), which is not a gi
 Return the hash of the last git commit.
 """
 commithash() =
-    if _IS_REPO # only run inside git repository
+    if _isrepo(true) # only run inside git repository
         try chomp(read(`git rev-parse HEAD`, String)) # read hash without newline character
         catch; "" end
     else "" end
-
 
 """
     remoteurl(remote="origin")
@@ -48,11 +57,10 @@ commithash() =
 Return the URL of the given git remote.
 """
 remoteurl(remote::String="origin") =
-    if _IS_REPO # only run inside git repository
+    if _isrepo(true) # only run inside git repository
         try chomp(read(`git config --get remote.$remote.url`, String))
         catch; "" end
     else "" end
-
 
 """
     haschanges()
@@ -60,7 +68,7 @@ remoteurl(remote::String="origin") =
 Return true iff changes are made in the current working directory (staged or unstaged).
 """
 haschanges(path::String...=".") =
-    if _IS_REPO # only run inside git repository
+    if _isrepo(true) # only run inside git repository
         try
             run(`git diff --quiet $path`) # throws error if differences are present
             run(`git diff --cached --quiet $path`)
@@ -68,6 +76,5 @@ haschanges(path::String...=".") =
         catch; true end # if something is catched, there are changes
     else false end
 
-
-end
+end # module
 
