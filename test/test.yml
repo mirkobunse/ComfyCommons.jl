@@ -21,6 +21,6 @@ subexpandlist:
     P: [ "P1", "P2", "P3" ]
 
 # test property interpolation
-inter: "blaw-$simple"
-multi: "blaw-$simple-$simple"
-kwarg: "blaw-$arg"
+inter: "blaw-$(simple)"
+multi: "blaw-$(simple)-$(simple)"
+kwarg: "blaw-$(arg)"

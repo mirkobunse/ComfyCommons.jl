@@ -97,29 +97,34 @@ indent(str::AbstractString, level::Int, ignorelevel::Bool=false) =
 
 
 
-"""
-    interpolate(conf, property; kwargs...)
+_INTERPOLATE_DOC = """
+    interpolate(configuration, property; kwargs...)
+    interpolate!(configuration, property; kwargs...)
 
-Interpolate the value of the given property with the referenced configuration value or with
-the referenced keyword argument value.
+Interpolate the value of a `property` in some `configuration` with the values referenced therein.
 
-For example, if conf specifies `inter: \$val` and `val: blaw`, you can obtain `blaw`
-by calling `interpolate(conf, "inter")`. If only `inter: \$kw` is given (and `kw` is not
-configured), you can use keyword arguments to achieve the same effect:
-`interpolate(conf, "inter", kw="blaw")`.
-The `property` argument can be an array specifying a root-to-leaf path in the configuration
-tree.
+For example, if the `configuration` specifies two properties `prop: "\$(foo)bar"` and
+`foo: "bar"`, interpolating the value of `foo` into `prop` yields `prop: "barbar"`. Namely,
+`\$(foo)` has been replaced by the value of `foo`. If only `prop: "\$(foo)bar"` is given but
+no property `foo` is configured, you can specify it as a keyword argument, calling
+`interpolate(conf, "prop", foo="bar")`, which yields the same result. In any case, `prop`
+has to refer to `foo` with a dollar sign and enclosing brackets (`\$(foo)`).
+
+The `property` may be a vector specifying a root-to-leaf path in the configuration tree.
 """
-function interpolate(conf::Dict{Any,Any}, property::AbstractArray; kwargs...)
-    replace(_getindex(conf, property...), r"\$[a-zA-Z]+", s ->
-        if haskey(conf, s[2:end])
-            conf[s[2:end]]
+@doc _INTERPOLATE_DOC interpolate
+@doc _INTERPOLATE_DOC interpolate!
+
+function interpolate(conf::Dict{Any,Any}, property::AbstractVector; kwargs...)
+    replace(_getindex(conf, property...), r"\$\([a-zA-Z_]+\)", s ->
+        if haskey(conf, s[3:end-1])
+            conf[s[3:end-1]]
         else
-            kwarg = find(k -> string(k[1]) == s[2:end], kwargs)
+            kwarg = find(k -> string(k[1]) == s[3:end-1], kwargs)
             if length(kwarg) > 0
                 kwargs[kwarg[1]][2]
             else
-                error("Key $s not in config and not supplied as keyword argument.")
+                error("Key $(s[3:end-1]) not in config and not supplied as keyword argument.")
             end
         end)
 end
@@ -127,10 +132,7 @@ end
 interpolate(conf::Dict{Any,Any}, property::Any; kwargs...) =
     interpolate(conf, [property]; kwargs...)
 
-"""
-See `ComfyCommons.Yaml.interpolate`.
-"""
-interpolate!(conf::Dict{Any,Any}, property::AbstractArray; kwargs...) =
+interpolate!(conf::Dict{Any,Any}, property::AbstractVector; kwargs...) =
     _setindex!(conf, interpolate(conf, property; kwargs...), property...)
 
 interpolate!(conf::Dict{Any,Any}, property::Any; kwargs...) =
@@ -138,14 +140,15 @@ interpolate!(conf::Dict{Any,Any}, property::Any; kwargs...) =
 
 
 """
-    expand(config, property)
+    expand(configuration, property)
 
-Expand the values of the given configuration with the content of the given property.
+Expand the values of a `configuration` with the content of a `property` specified therein.
 
-Expansion means that if `property` is an array with multiple elements, each element is
-isolated and stored in the property in a dedicated copy of the configuration.
-The `property` argument can be an array specifying a root-to-leaf path in the configuration
-tree.
+Expansion means that if the `property` is a vector with multiple elements, each element
+defines a copy of the configuration where only this element is stored in the `property`.
+Thus, a vector of configurations is returned, with all elements similar to the original
+`configuration` but each containing another value of the `property`. The `property` may be
+a vector specifying a root-to-leaf path in the configuration tree.
 """
 expand(config::Dict{Any,Any}, property::Any) =
     [ Dict(config..., property => v) for v in _getindex(config, property) ]
