@@ -165,9 +165,11 @@ expand(config::Dict{Any,Any}, properties::Any...) = # Any also matches AbstractA
 # (overriding Base.getindex and Base.setindex would screw up these methods)
 @inbounds _getindex(val::Dict, keys::Any...) =
     if length(keys) > 1
-        _getindex(val[keys[1]], keys[2:end]...)
-    else
+        _getindex(val[keys[1]], keys[2:end]...) # descend into the val[keys[1]] sub-tree
+    elseif haskey(val, keys[1])
         val[keys[1]]
+    else
+        -1 # return a dummy value - this will never be set (see _setindex! below)
     end
 
 @inbounds _getindex(arr::AbstractArray, keys::Any...) =
@@ -176,7 +178,7 @@ expand(config::Dict{Any,Any}, properties::Any...) = # Any also matches AbstractA
 @inbounds _setindex!(val::Dict, value::Any, keys::Any...) = 
     if length(keys) > 1
         _setindex!(val[keys[1]], value, keys[2:end]...)
-    elseif haskey(val, keys[1])
+    elseif haskey(val, keys[1]) # only update existing mappings because expansion never adds new mappings
         val[keys[1]] = value
     end
 
