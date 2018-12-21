@@ -172,7 +172,7 @@ expand(config::Dict{Any,Any}, properties::Any...) = # Any also matches AbstractA
     elseif haskey(val, keys[1])
         val[keys[1]]
     else
-        -1 # return a dummy value - this will never be set (see _setindex! below)
+        Any[nothing] # return a dummy value - this will never be set (see _setindex! below)
     end
 
 @inbounds _getindex(arr::AbstractArray, keys::Any...) =
