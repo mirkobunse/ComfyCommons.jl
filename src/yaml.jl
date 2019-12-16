@@ -150,7 +150,7 @@ Thus, a vector of configurations is returned, with all elements similar to the o
 a vector specifying a root-to-leaf path in the configuration tree.
 """
 expand(config::Dict{Any,Any}, property::Any) =
-    [ Dict(config..., property => v) for v in _getindex(config, property) ]
+    [ Dict{Any,Any}(config..., property => v) for v in _getindex(config, property) ]
 
 # deeper in the configuration tree, it gets slightly more complex
 expand(config::Dict{Any,Any}, property::AbstractArray) =
