@@ -1,6 +1,6 @@
 # 
 # ComfyCommons.jl
-# Copyright 2017, 2018 Mirko Bunse
+# Copyright 2017-2020 Mirko Bunse
 # 
 # 
 # Comfortable utility functions.
