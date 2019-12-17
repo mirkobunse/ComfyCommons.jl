@@ -28,35 +28,43 @@ import Logging: ConsoleLogger, default_metafmt
 export GlobalConsoleLogger, set_global_logger
 
 """
-    set_global_logger()
+    set_global_logger(; date=false, seconds=false)
 
 Replace the global `ConsoleLogger` with the `ComfyCommons.Logging.GlobalConsoleLogger`.
 """
-set_global_logger() = global_logger(GlobalConsoleLogger())
+set_global_logger(; kwargs...) = global_logger(GlobalConsoleLogger(; kwargs...))
 
 """
-    GlobalConsoleLogger()
+    GlobalConsoleLogger(; date=false, seconds=false)
 
-Creates a copy of the global `ConsoleLogger`, prepending the date-time and the process ID to
-all messages.
+Creates a copy of the global `ConsoleLogger` which prepends the date-time and the process
+ID to all messages.
 
 You can make this logger the default by calling:
 
-    ComfyCommons.Logging.set_global_logger()
+    ComfyCommons.Logging.set_global_logger(; kwargs...)
 """
-function GlobalConsoleLogger()
+function GlobalConsoleLogger(; date=false, seconds=false)
+    time_format = "HH:MM"
+    if seconds
+        time_format = "$time_format:SS" # append the seconds
+    end
+    if date
+        time_format = "yy-mm-dd $time_format" # prepend the date
+    end
+    
+    # prepend the process ID and the date-time to the default prefix
+    _metafmt(level, _module, group, id, file, line) = begin
+        color, prefix, suffix = default_metafmt(level, _module, group, id, file, line) # default format
+        prefix = join([ "$(Printf.@sprintf "%2d" Distributed.myid())]",
+                        Dates.format(Dates.now(), time_format),
+                        prefix ], " ")
+        color, prefix, suffix
+    end
+    
     gl = global_logger()
     return ConsoleLogger(gl.stream, gl.min_level, _metafmt, gl.show_limited,
                          gl.right_justify, gl.message_limits)
-end
-
-# prepend the process ID and the date-time to the default prefix
-function _metafmt(level, _module, group, id, file, line)
-    color, prefix, suffix = default_metafmt(level, _module, group, id, file, line) # default format
-    prefix = join([ "($(Printf.@sprintf "%2d" Distributed.myid()))",
-                    Dates.format(Dates.now(), "yy-mm-dd HH:MM:SS"),
-                    prefix ], " ")
-    return color, prefix, suffix
 end
 
 end
