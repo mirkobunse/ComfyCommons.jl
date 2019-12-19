@@ -39,10 +39,9 @@ TEMPLATE_PLOT_PLACEHOLDER = "{PLOT}"
 _template = AbstractString[TEMPLATE_PLOT_PLACEHOLDER]
 
 function setpgftemplate(template::AbstractString)
-    if !contains(template, TEMPLATE_PLOT_PLACEHOLDER)
-        warn("Template does not contain the plot placeholder $TEMPLATE_PLOT_PLACEHOLDER")
+    if !occursin(TEMPLATE_PLOT_PLACEHOLDER, template)
+        warn("The plot placeholder $TEMPLATE_PLOT_PLACEHOLDER does not occur in the template")
     end
-    
     pop!(_template)
     push!(_template, template)
 end
