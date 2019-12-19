@@ -160,7 +160,7 @@ function TikzPictures.save(f::Union{TikzPictures.TEX,TikzPictures.TIKZ}, tp::Tik
         print(tex, tp.options)
         println(tex, "]")
     end
-    println(tex, replace(_template[1], TEMPLATE_PLOT_PLACEHOLDER, tp.data))
+    println(tex, replace(_template[1], TEMPLATE_PLOT_PLACEHOLDER => tp.data))
     if f.include_preamble
         println(tex, "\\end{tikzpicture}")
         println(tex, "\\end{document}")
