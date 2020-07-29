@@ -25,6 +25,8 @@ module Yaml # sub-module of ComfyCommons
 import YAML
 export load_file, write_file, expand, interpolate, interpolate!
 
+write_file = YAML.write_file # original code from ComfyCommons has been merged to YAML.jl
+
 
 """
     load_file(filename, more_constrictors=nothing; kwargs...)
@@ -43,58 +45,6 @@ function load_file(filename::AbstractString, more_constructors::YAML._constructo
     end
     return config
 end
-
-
-#
-# YAML file writing (may contribute to https://github.com/dcjones/YAML.jl/issues/29)
-# 
-"""
-    write_file(filename, config)
-
-Write the given configuration to a YAML file.
-"""
-function write_file(filename::AbstractString, config::Dict{Any,Any}, prefix::AbstractString="")
-    if (!endswith(filename, ".yml"))
-        warn("The provided filename $filename does not end on '.yml'. Still writing...")
-    end
-    file = open(filename, "w")
-    print(file, prefix)
-    write(file, config)
-    close(file)
-end
-
-function write(io::IO, config::Dict{Any,Any}, level::Int=0, ignorelevel::Bool=false)
-    for (i, tup) in enumerate(config)
-        write(io, tup, level, ignorelevel ? i == 1 : false)
-    end
-end
-
-function write(io::IO, config::Pair{Any,Any}, level::Int=0, ignorelevel::Bool=false)
-    print(io, indent(string(config[1]) * ":", level, ignorelevel)) # print key
-    if (typeof(config[2]) <: Dict || typeof(config[2]) <: AbstractArray)
-        print(io, "\n")
-    else
-        print(io, " ")
-    end
-    write(io, config[2], level + 1) # print value
-end
-
-function write(io::IO, config::AbstractArray, level::Int=0, ignorelevel::Bool=false)
-    for (i, elem) in enumerate(config)
-        print(io, indent("- ", level))   # print sequence element character '-'
-        write(io, elem, level + 1, true) # print value, ignore first indent
-    end
-end
-
-write(io::IO, config::Any, level::Int=0, ignorelevel::Bool=false) =
-    print(io, string(config) * "\n") # no indent required
-
-indent(str::AbstractString, level::Int, ignorelevel::Bool=false) =
-    repeat("  ", ignorelevel ? 0 : level) * str
-# 
-# end of file writing
-# 
-
 
 
 _INTERPOLATE_DOC = """
