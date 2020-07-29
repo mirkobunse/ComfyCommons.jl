@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ComfyCommons.jl.  If not, see <http://www.gnu.org/licenses/>.
 # 
-module Logging # sub-module of ComfyCommons
+module ComfyLogging # sub-module of ComfyCommons
 
 import Dates, Distributed, Printf
 import Base.CoreLogging.global_logger
@@ -30,7 +30,7 @@ export GlobalConsoleLogger, set_global_logger
 """
     set_global_logger(; date=false, seconds=false)
 
-Replace the global `ConsoleLogger` with the `ComfyCommons.Logging.GlobalConsoleLogger`.
+Replace the global `ConsoleLogger` with the `ComfyLogging.GlobalConsoleLogger`.
 """
 set_global_logger(; kwargs...) = global_logger(GlobalConsoleLogger(; kwargs...))
 
@@ -42,7 +42,7 @@ ID to all messages.
 
 You can make this logger the default by calling:
 
-    ComfyCommons.Logging.set_global_logger(; kwargs...)
+    ComfyLogging.set_global_logger(; kwargs...)
 """
 function GlobalConsoleLogger(; date=false, seconds=false)
     time_format = "HH:MM"

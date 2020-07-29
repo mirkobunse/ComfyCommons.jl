@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ComfyCommons.jl.  If not, see <http://www.gnu.org/licenses/>.
 # 
-module Git # sub-module of ComfyCommons
+module ComfyGit # sub-module of ComfyCommons
 
 export isrepo, commithash, remoteurl, haschanges
 
@@ -36,7 +36,7 @@ _isrepo(warn::Bool) =
         run(pipeline(`git rev-parse --show-toplevel`, stderr=devnull, stdout=devnull))
         true
     catch;
-        warn && @warn "ComfyCommons.Git is called from $(pwd()), which is not a git repository."
+        warn && @warn "ComfyGit is called from $(pwd()), which is not a git repository."
         false
     end
 

@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ComfyCommons.jl.  If not, see <http://www.gnu.org/licenses/>.
 # 
-module Imports # sub-module of ComfyCommons
+module ComfyImports # sub-module of ComfyCommons
 
 """
     importdir(dir; modulenames=String[], recursive=false, includehidden=false)
