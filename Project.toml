@@ -7,9 +7,7 @@ version = "0.1.0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
-PGFPlots = "3b7a836e-365b-5785-a47d-02c71176b4aa"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
-TikzPictures = "37f6aa50-8035-52d0-81c2-5a1d08754b2d"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [extras]
