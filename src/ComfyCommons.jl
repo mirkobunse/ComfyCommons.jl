@@ -21,10 +21,9 @@
 # 
 module ComfyCommons
 
-export ComfyImports, ComfyLogging, ComfyGit, ComfyYaml, confirm_exit
+export ComfyLogging, ComfyGit, ComfyYaml, confirm_exit
 
 # sub-modules
-include("ComfyImports.jl")
 include("ComfyLogging.jl")
 include("ComfyGit.jl")
 include("ComfyYaml.jl")
