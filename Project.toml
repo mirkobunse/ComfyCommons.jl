@@ -6,6 +6,7 @@ version = "0.1.0"
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"

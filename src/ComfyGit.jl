@@ -21,60 +21,28 @@
 # 
 module ComfyGit # sub-module of ComfyCommons
 
-export isrepo, commithash, remoteurl, haschanges
-
-"""
-    isrepo()
-
-Returns true iff the current working directory is a git repository.
-"""
-isrepo() = _isrepo(false)
-
-# actual implementation is hidden
-_isrepo(warn::Bool) =
-    try
-        run(pipeline(`git rev-parse --show-toplevel`, stderr=devnull, stdout=devnull))
-        true
-    catch;
-        warn && @warn "ComfyGit is called from $(pwd()), which is not a git repository."
-        false
-    end
+using LibGit2
+export commithash, remoteurl, haschanges
 
 """
     commithash()
 
 Return the hash of the last git commit.
 """
-commithash() =
-    if _isrepo(true) # only run inside git repository
-        try chomp(read(`git rev-parse HEAD`, String)) # read hash without newline character
-        catch; "" end
-    else "" end
+commithash() = string(LibGit2.head_oid(GitRepo(".")))
 
 """
     remoteurl(remote="origin")
 
 Return the URL of the given git remote.
 """
-remoteurl(remote::String="origin") =
-    if _isrepo(true) # only run inside git repository
-        try chomp(read(`git config --get remote.$remote.url`, String))
-        catch; "" end
-    else "" end
+remoteurl(remote::String="origin") = LibGit2.url(LibGit2.lookup_remote(GitRepo("."), remote))
 
 """
     haschanges()
 
 Return true iff changes are made in the current working directory (staged or unstaged).
 """
-haschanges(path::String...=".") =
-    if _isrepo(true) # only run inside git repository
-        try
-            run(`git diff --quiet $path`) # throws error if differences are present
-            run(`git diff --cached --quiet $path`)
-            false
-        catch; true end # if something is catched, there are changes
-    else false end
+haschanges(path::String...="") = any([LibGit2.isdirty(GitRepo("."), x) for x in path])
 
 end # module
-
