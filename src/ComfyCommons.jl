@@ -21,12 +21,11 @@
 # 
 module ComfyCommons
 
-export ComfyLogging, ComfyGit, ComfyYaml, confirm_exit
+export ComfyLogging, ComfyGit, confirm_exit
 
 # sub-modules
 include("ComfyLogging.jl")
 include("ComfyGit.jl")
-include("ComfyYaml.jl")
 
 """
     confirm_exit()
